@@ -124,8 +124,9 @@ Return strictly a valid JSON object matching this schema:
 </output_contract>
 
 <verification_criteria>
-- Must formulate formal legal notice invoking Consumer Protection Act 2019.
-- Provide verified GRO email and escalation channel.
+- Must formulate formal legal notice invoking Consumer Protection Act 2019 (Sections 2(11) and 35).
+- Never hallucinate warranty terms, invoice values, or exclusions not present in source text; emit null for missing details.
+- Provide verified GRO email and escalation channel for the provider.
 </verification_criteria>
 `;
 

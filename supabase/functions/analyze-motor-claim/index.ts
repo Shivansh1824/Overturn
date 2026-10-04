@@ -136,8 +136,9 @@ Return strictly a valid JSON object matching this schema:
 
 <verification_criteria>
 - If the policy has Zero Depreciation cover, surveyor deduction on plastic/fiberglass/rubber MUST be flagged as an unlawful deduction.
-- Cite Gurshinder Singh (2020) if delay in intimation is the stated repudiation ground.
-- Return verified GRO email and Insurance Ombudsman center.
+- If delay in intimation is the stated repudiation ground, cite Gurshinder Singh (2020) Supreme Court precedent.
+- Never hallucinate vehicle specs, surveyor figures, or policy terms not present in source documents; emit null for unmentioned values.
+- Return verified GRO email and regional Insurance Ombudsman center for the insurer.
 </verification_criteria>
 `;
 

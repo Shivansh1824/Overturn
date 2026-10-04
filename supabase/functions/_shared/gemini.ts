@@ -11,14 +11,14 @@ interface GeminiCallOptions {
 }
 
 // Fallback Model Hierarchy (Modern Models only):
-// 1. Primary: gemini-flash-lite-latest (fastest, lightweight, generous rate limit)
-// 2. Fallback 1: gemini-3.5-flash-lite (latest generation lightweight)
-// 3. Fallback 2: gemini-3.1-flash-lite
+// 1. Primary: gemini-3.5-flash-lite
+// 2. Fallback 1: gemini-3.1-flash-lite
+// 3. Fallback 2: gemini-flash-lite-latest
 // 4. Escalation: gemini-3.5-flash (guarded with strict daily reasoning cap to protect free tier)
 const MODELS = [
-  "gemini-flash-lite-latest",
   "gemini-3.5-flash-lite",
   "gemini-3.1-flash-lite",
+  "gemini-flash-lite-latest",
   "gemini-3.5-flash",
 ];
 

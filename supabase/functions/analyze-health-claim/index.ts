@@ -138,8 +138,9 @@ Return strictly a valid JSON object matching this schema:
 </output_contract>
 
 <verification_criteria>
-- If is_rejection_legitimate is false, evidence_battle_board MUST have at least 2 distinct clinical rebuttals citing exact proof.
-- formal_appeal_dossier_markdown must be a comprehensive, ready-to-mail legal notice citing IRDAI regulations and doctor certification.
+- If is_rejection_legitimate is false: evidence_battle_board MUST contain at least 2 clinical rebuttals citing exact proof from source records, financial_hardship_playbook can be null, and formal_appeal_dossier_markdown must be a comprehensive legal-medical notice citing IRDAI regulations.
+- If is_rejection_legitimate is true: financial_hardship_playbook MUST contain 4 actionable steps (tariff reduction, ex-gratia, unbundled recovery, EMI), and evidence_battle_board can be an empty array [].
+- Never hallucinate policy terms or clinical findings not in the source documents. If a field is unknown, emit null.
 - Provide verified GRO email and regional Insurance Ombudsman center for the insurer.
 </verification_criteria>
 `;

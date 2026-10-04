@@ -107,7 +107,8 @@ Return strictly a valid JSON object matching this schema:
 
 <verification_criteria>
 - If room rent has a 1% or 2% cap, proportional_deduction_trap_active must be true.
-- Score must mathematically reflect the presence of co-pays, sub-limits, and room rent caps.
+- Score must be between 0 and 100, mathematically reflecting the presence of co-pays, sub-limits, and room rent caps.
+- Never hallucinate sub-limits, waiting periods, or co-pays not present in the source policy text; emit null or empty arrays if unmentioned.
 - Return strictly valid JSON without markdown wrapping.
 </verification_criteria>
 `;

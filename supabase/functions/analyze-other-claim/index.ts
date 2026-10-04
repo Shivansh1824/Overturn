@@ -9,13 +9,31 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const {
+    let {
       claim_id,
       extracted_text,
       incident_proof_text,
       policy_vault_id,
       policy_details,
     } = await req.json();
+
+    // Dual-Input Resolution: If claim_id is passed, pull any missing denial or policy references directly from DB
+    if (claim_id && (!extracted_text || !policy_vault_id)) {
+      try {
+        const supabase = getSupabaseAdmin();
+        const { data: claimData } = await supabase
+          .from("claim_cases")
+          .select("*")
+          .eq("claim_id", claim_id)
+          .single();
+        if (claimData) {
+          if (!extracted_text && claimData.denial_reason) extracted_text = claimData.denial_reason;
+          if (!policy_vault_id && claimData.policy_vault_id) policy_vault_id = claimData.policy_vault_id;
+        }
+      } catch (err) {
+        console.warn("DB other claim fallback lookup warning:", err);
+      }
+    }
 
     // MANDATORY POLICY ENFORCEMENT
     if (!policy_vault_id && !policy_details?.policy_number && !policy_details?.insurer_name) {

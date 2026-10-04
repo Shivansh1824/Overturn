@@ -32,3 +32,12 @@ build/
 .vscode/*
 !.vscode/extensions.json
 .idea/
+
+# Supabase
+supabase/.temp/
+.supabase/
+
+# Scratch & Test Artifacts
+scratch/
+
+

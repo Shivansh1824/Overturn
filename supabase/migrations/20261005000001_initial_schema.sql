@@ -144,3 +144,47 @@ $$;
 
 CREATE INDEX IF NOT EXISTS idx_policy_scans_user_id ON public.policy_scans(user_id);
 CREATE INDEX IF NOT EXISTS idx_policy_scans_status ON public.policy_scans(status);
+
+-- 4. USER POLICIES TABLE (The Policy Vault)
+CREATE TABLE IF NOT EXISTS public.user_policies (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    beneficiary_name TEXT NOT NULL DEFAULT 'Self',
+    beneficiary_relationship TEXT NOT NULL DEFAULT 'self',
+    policy_number TEXT,
+    insurer_name TEXT NOT NULL,
+    policy_name TEXT NOT NULL,
+    insurance_type TEXT NOT NULL DEFAULT 'health',
+    policy_subtype TEXT,
+    sum_insured NUMERIC(12, 2) DEFAULT 0,
+    document_url TEXT,
+    raw_extracted_text TEXT,
+    extracted_terms JSONB NOT NULL DEFAULT '{}'::jsonb
+);
+
+ALTER TABLE public.user_policies ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'user_policies' AND policyname = 'Allow public read user_policies') THEN
+    CREATE POLICY "Allow public read user_policies" ON public.user_policies FOR SELECT USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'user_policies' AND policyname = 'Allow public insert user_policies') THEN
+    CREATE POLICY "Allow public insert user_policies" ON public.user_policies FOR INSERT WITH CHECK (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'user_policies' AND policyname = 'Allow public update user_policies') THEN
+    CREATE POLICY "Allow public update user_policies" ON public.user_policies FOR UPDATE USING (true);
+  END IF;
+END
+$$;
+
+CREATE INDEX IF NOT EXISTS idx_user_policies_user_id ON public.user_policies(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_policies_insurance_type ON public.user_policies(insurance_type);
+
+ALTER TABLE public.claim_cases ADD COLUMN IF NOT EXISTS policy_vault_id UUID REFERENCES public.user_policies(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_claim_cases_policy_vault_id ON public.claim_cases(policy_vault_id);
+
+ALTER TABLE public.policy_scans ADD COLUMN IF NOT EXISTS policy_vault_id UUID REFERENCES public.user_policies(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_policy_scans_policy_vault_id ON public.policy_scans(policy_vault_id);

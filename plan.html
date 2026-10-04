@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Overturn — Master Execution Plan & Architecture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070a13;
+      --card-bg: rgba(15, 23, 42, 0.75);
+      --card-border: rgba(148, 163, 184, 0.12);
+      --card-hover: rgba(30, 41, 59, 0.85);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --cyan: #06b6d4;
+      --cyan-glow: rgba(6, 182, 212, 0.25);
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.2);
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --purple: #8b5cf6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.1) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0px, transparent 50%);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      min-height: 100vh;
+      padding: 2.5rem 1.5rem;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 2rem;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-cyan {
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--cyan);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+
+    .badge-purple {
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--purple);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .badge-emerald {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--emerald);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      font-weight: 400;
+      max-width: 750px;
+    }
+
+    /* Progress Bar */
+    .progress-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--emerald));
+      border-radius: 9999px;
+      transition: width 0.4s ease;
+    }
+
+    /* Section & Cards */
+    .section-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 2rem 0 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .section-title span.number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--cyan);
+      font-size: 0.85rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      backdrop-filter: blur(12px);
+      transition: all 0.25s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(6, 182, 212, 0.3);
+      box-shadow: 0 8px 24px -8px var(--cyan-glow);
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-desc {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      margin-bottom: 1.2rem;
+    }
+
+    /* Checklist Items */
+    .task-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .task-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .task-item input[type="checkbox"] {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(148, 163, 184, 0.4);
+      border-radius: 6px;
+      margin-top: 2px;
+      display: grid;
+      place-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .task-item input[type="checkbox"]:checked {
+      background: var(--emerald);
+      border-color: var(--emerald);
+    }
+
+    .task-item input[type="checkbox"]:checked::before {
+      content: "✓";
+      color: #070a13;
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .task-content {
+      flex: 1;
+    }
+
+    .task-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+      transition: color 0.2s;
+    }
+
+    .task-item.done .task-title {
+      text-decoration: line-through;
+      color: rgba(148, 163, 184, 0.6);
+    }
+
+    .task-detail {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* Email Spec Box */
+    .email-box {
+      background: rgba(6, 182, 212, 0.04);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      border-radius: 12px;
+      padding: 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      margin-top: 1rem;
+    }
+
+    .email-line {
+      margin-bottom: 0.5rem;
+    }
+
+    .email-line strong {
+      color: var(--cyan);
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 3.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--card-border);
+      padding-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge-row">
+        <span class="badge badge-cyan">WCC Launchpad 30</span>
+        <span class="badge badge-purple">Track 01: Agentic AI</span>
+        <span class="badge badge-emerald">Overturn</span>
+      </div>
+      <h1>Overturn — Master Execution Plan</h1>
+      <p class="subtitle">Autonomous Health Insurance Denial Appeal & Pre-Auth Strategist. Interactive roadmap and milestone tracker.</p>
+    </header>
+
+    <!-- Progress Tracker -->
+    <div class="progress-card">
+      <div class="progress-header">
+        <span>Sprint Progress</span>
+        <span id="progress-percent" style="color: var(--cyan);">0% Completed</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+      </div>
+    </div>
+
+    <!-- Phase 0 -->
+    <div class="section-title">
+      <span class="number">0</span>
+      Phase 0: Project Foundation (Completed)
+    </div>
+    <div class="card">
+      <div class="card-title">Repository & Core Specifications</div>
+      <p class="card-desc">Initial alignment, track mapping, and documentation established on Desktop.</p>
+      <ul class="task-list">
+        <li class="task-item done">
+          <input type="checkbox" checked data-task="p0-1">
+          <div class="task-content">
+            <div class="task-title">WCC Launchpad 30 Track Alignment</div>
+            <div class="task-detail">Registered under Track 01 (Agentic AI) with crossover in Healthcare Operations & Automation.</div>
+          </div>
+        </li>
+        <li class="task-item done">
+          <input type="checkbox" checked data-task="p0-2">
+          <div class="task-content">
+            <div class="task-title">Created Desktop Project Folder: Overturn-WCC-Launchpad-30</div>
+            <div class="task-detail">Local directory initialized and verified.</div>
+          </div>
+        </li>
+        <li class="task-item done">
+          <input type="checkbox" checked data-task="p0-3">
+          <div class="task-content">
+            <div class="task-title">Generated ai-context.md</div>
+            <div class="task-detail">Complete project specifications, data schemas, and engineering rules.</div>
+          </div>
+        </li>
+        <li class="task-item done">
+          <input type="checkbox" checked data-task="p0-4">
+          <div class="task-content">
+            <div class="task-title">Generated README.md</div>
+            <div class="task-detail">Hackathon problem evidence, key differentiators, and setup instructions.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Phase 1 -->
+    <div class="section-title">
+      <span class="number">1</span>
+      Phase 1: Backend System & AI Intelligence Engine
+    </div>
+    <div class="card">
+      <div class="card-title">Supabase Database & Edge Functions</div>
+      <p class="card-desc">Database schema, storage bucket, and Gemini Flash Lite with Google Search Grounding.</p>
+      <ul class="task-list">
+        <li class="task-item">
+          <input type="checkbox" data-task="p1-1">
+          <div class="task-content">
+            <div class="task-title">Supabase PostgreSQL Schema Setup</div>
+            <div class="task-detail">Create claim_cases table with overturn_score, ai_evidence_matches, insurer_intelligence, and appeal_letter fields.</div>
+          </div>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" data-task="p1-2">
+          <div class="task-content">
+            <div class="task-title">Supabase Storage Bucket: claim-documents</div>
+            <div class="task-detail">Secure bucket for uploaded denial letters, doctor notes, and generated appeal PDFs.</div>
+          </div>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" data-task="p1-3">
+          <div class="task-content">
+            <div class="task-title">Supabase Edge Function: analyze-claim</div>
+            <div class="task-detail">Deno/TypeScript endpoint integrating Gemini Flash Lite with Google Search Grounding enabled.</div>
+          </div>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" data-task="p1-4">
+          <div class="task-content">
+            <div class="task-title">Grounded Insurer Intelligence & Ombudsman Search</div>
+            <div class="task-detail">Fetches real insurer settlement ratios, CPB policy bulletins, and relevant Insurance Ombudsman award precedents.</div>
+          </div>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" data-task="p1-5">
+          <div class="task-content">
+            <div class="task-title">The Honesty Engine</div>
+            <div class="task-detail">Evaluates if denial is overturnable vs honestly flagging missing papers (e.g. missing pharmacy bills).</div>
+          </div>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" data-task="p1-6">
+          <div class="task-content">
+            <div class="task-title">Policy X-Ray & Pre-Auth Scanner (Option B)</div>
+            <div class="task-detail">Grounded scanner for existing policies highlighting hidden traps (room rent caps, waiting periods, emergency checklist).</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="section-title">
+      <span class="number">2</span>
+      Phase 2: Core Functional Capabilities (To be built in Frontend)
+    </div>
+    <div class="card">
+      <div class="card-title">Interactive Experience & User Journeys</div>
+      <p class="card-desc">The key capabilities you will construct when assembling the frontend interface.</p>
+      <ul class="task-list">
+        <li class="task-item">
+          <input type="checkbox" data-task="p2-1">
+          <div class="task-content">
+            <div class="task-title">Capability: Case Intake & Document Ingestion</div>
+            <div class="task-detail">1-click real pre-loaded test cases (Spine MRI, Knee Surgery, Diabetes CGM) + Custom PDF/image dropzone.</div>
+          </div>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" data-task="p2-2">
+          <div class="task-content">
+            <div class="task-title">Capability: Autonomous Agent Thought Stream</div>
+            <div class="task-detail">Real-time visual stream displaying denial code extraction, live web grounding queries, and chart audit.</div>
+          </div>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" data-task="p2-3">
+          <div class="task-content">
+            <div class="task-title">Capability: Evidence Battle Board & Human Sign-off</div>
+            <div class="task-detail">Side-by-side comparison: Insurer Allegation vs The Smoking Gun Clinical Proof with human verification toggle.</div>
+          </div>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" data-task="p2-4">
+          <div class="task-content">
+            <div class="task-title">Capability: Overturn Probability Meter</div>
+            <div class="task-detail">Dynamic win-rate gauge (e.g. 88%) with factor weights and Insurer Trap Callouts.</div>
+          </div>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" data-task="p2-5">
+          <div class="task-content">
+            <div class="task-title">Capability: Formal Appeal Dossier Generation</div>
+            <div class="task-detail">Complete legal-medical appeal letter formatted with ICD-10/CPT codes, medical necessity citations, and doctor signature block.</div>
+          </div>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" data-task="p2-6">
+          <div class="task-content">
+            <div class="task-title">Capability: Statutory 15-Day IRDAI Regulator Shield</div>
+            <div class="task-detail">Live SLA resolution countdown clock with 1-click Ombudsman complaint escalation preview.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Phase 3: Email Plan -->
+    <div class="section-title">
+      <span class="number">3</span>
+      Phase 3: Email Dispatch & Communication Architecture
+    </div>
+    <div class="card">
+      <div class="card-title">Inbound & Outbound Email Workflow</div>
+      <p class="card-desc">Detailed specification for the email communication flow between the patient and insurer.</p>
+      
+      <div class="email-box">
+        <div class="email-line"><strong>ACTION:</strong> 1-Click "Dispatch to Grievance Redressal Officer (GRO)"</div>
+        <div class="email-line"><strong>TO:</strong> [Grounded GRO Email, e.g., grievance@starhealth.in]</div>
+        <div class="email-line"><strong>SUBJECT:</strong> URGENT: First Appeal against Repudiation of Claim #[CLAIM_ID] — Policy #[POLICY_NUM] — Patient: [PATIENT_NAME]</div>
+        <div class="email-line"><strong>BODY SUMMARY:</strong> Formal dispute notice citing clinical proof from Dr. Sharma's records, IRDAI Policyholder Protection Regulations Section 14, and statutory 15-day turnaround deadline.</div>
+        <div class="email-line"><strong>ATTACHMENTS:</strong> Signed Appeal Dossier PDF + Medical Evidence Chart Extract</div>
+      </div>
+
+      <ul class="task-list" style="margin-top: 1.25rem;">
+        <li class="task-item">
+          <input type="checkbox" data-task="p3-1">
+          <div class="task-content">
+            <div class="task-title">1-Click mailto: Dispatch Engine</div>
+            <div class="task-detail">Pre-fills native email client with verified GRO address, claim reference ID, and formatted legal appeal body.</div>
+          </div>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" data-task="p3-2">
+          <div class="task-content">
+            <div class="task-title">Inbound Email Simulation / Forwarding</div>
+            <div class="task-detail">"Simulate Inbound Email" button on intake allowing judges to paste an insurer email rejection and parse it immediately.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Phase 4 -->
+    <div class="section-title">
+      <span class="number">4</span>
+      Phase 4: CI/CD & Deployment
+    </div>
+    <div class="card">
+      <div class="card-title">GitHub & Vercel Pipeline</div>
+      <p class="card-desc">Instant cloud deployment with zero build lag.</p>
+      <ul class="task-list">
+        <li class="task-item">
+          <input type="checkbox" data-task="p4-1">
+          <div class="task-content">
+            <div class="task-title">Configure vercel.json</div>
+            <div class="task-detail">Static SPA rewrites, build commands, and cache headers for Vercel.</div>
+          </div>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" data-task="p4-2">
+          <div class="task-content">
+            <div class="task-title">Verify Local Production Build (npm run build)</div>
+            <div class="task-detail">Ensures zero TypeScript compilation warnings and sub-2-second build time.</div>
+          </div>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" data-task="p4-3">
+          <div class="task-content">
+            <div class="task-title">Connect GitHub Repository to Vercel</div>
+            <div class="task-detail">Automate continuous deployment on push with live .vercel.app public URL.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Phase 5: Future WOW Factors Backlog -->
+    <div class="section-title">
+      <span class="number">5</span>
+      Phase 5: Future "WOW Factor" Backlog (Post-MVP Enhancements)
+    </div>
+    <div class="card" style="border-color: rgba(245, 158, 11, 0.25);">
+      <div class="card-title" style="color: var(--amber);">Planned High-Value Enhancements</div>
+      <p class="card-desc">Additional differentiators to add if time permits before final submission.</p>
+      <ul class="task-list">
+        <li class="task-item">
+          <input type="checkbox" data-task="p5-1">
+          <div class="task-content">
+            <div class="task-title">WhatsApp Bot Webhook Integration</div>
+            <div class="task-detail">Send photo of rejection letter via WhatsApp to auto-trigger the appeal generation pipeline.</div>
+          </div>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" data-task="p5-2">
+          <div class="task-content">
+            <div class="task-title">Automated Insurance Ombudsman PDF Form Auto-Filler</div>
+            <div class="task-detail">If 15-day SLA breaches, pre-populates official Form VI-A for the territorial Insurance Ombudsman.</div>
+          </div>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" data-task="p5-3">
+          <div class="task-content">
+            <div class="task-title">Regional Language Audio Summary</div>
+            <div class="task-detail">Voice note explaining the appeal strategy in Hindi / regional languages for everyday grassroots patients.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <footer>
+      Overturn — Built for WCC Launchpad 30 &bull; Track 01: Agentic AI &bull; All changes saved in localStorage
+    </footer>
+  </div>
+
+  <script>
+    // Interactive checklist with localStorage persistence
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const progressFill = document.getElementById('progress-fill');
+    const progressPercent = document.getElementById('progress-percent');
+
+    function updateProgress() {
+      const total = checkboxes.length;
+      let checked = 0;
+      checkboxes.forEach(cb => {
+        const item = cb.closest('.task-item');
+        if (cb.checked) {
+          checked++;
+          item.classList.add('done');
+        } else {
+          item.classList.remove('done');
+        }
+        localStorage.setItem('overturn_task_' + cb.dataset.task, cb.checked ? '1' : '0');
+      });
+
+      const pct = Math.round((checked / total) * 100);
+      progressFill.style.width = pct + '%';
+      progressPercent.textContent = pct + '% Completed (' + checked + '/' + total + ')';
+    }
+
+    // Load saved states
+    checkboxes.forEach(cb => {
+      const saved = localStorage.getItem('overturn_task_' + cb.dataset.task);
+      if (saved !== null) {
+        cb.checked = saved === '1';
+      }
+      cb.addEventListener('change', updateProgress);
+    });
+
+    updateProgress();
+  </script>
+</body>
+</html>

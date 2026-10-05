@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronDown, ArrowUp } from 'lucide-react';
 import { WorkflowSection } from './WorkflowSection';
 import { TestimonialsSection } from './TestimonialsSection';
 import { FAQSection } from './FAQSection';
@@ -431,12 +431,54 @@ export const StoryShowcase: React.FC<StoryShowcaseProps> = ({
                 boxShadow: currentScene === i ? '0 0 12px rgba(13, 148, 136, 0.5)' : 'none',
               }}
             />
-            {/* Tooltip on hover */}
             <span className="absolute right-8 px-2.5 py-1.5 bg-white rounded-lg border border-slate-200 text-[10px] font-bold text-slate-700 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-sm pointer-events-none">
               {s.phase}
             </span>
           </button>
         ))}
+      </div>
+
+      {/* ── Bottom-Right Kinetic Scroll / Swipe Cue ── */}
+      <div className="absolute right-4 sm:right-8 bottom-5 sm:bottom-7 z-40">
+        <button
+          onClick={() => {
+            if (currentScene < SCENES.length - 1) {
+              goToScene(currentScene + 1);
+            } else {
+              goToScene(0);
+            }
+          }}
+          className="group flex items-center gap-2.5 sm:gap-3 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full bg-white/85 hover:bg-white backdrop-blur-md border border-slate-200/80 shadow-md shadow-slate-200/40 hover:shadow-lg hover:border-teal-400/70 transition-all duration-300 cursor-pointer"
+          title={currentScene < SCENES.length - 1 ? 'Scroll down or click to advance' : 'Back to top'}
+        >
+          {/* Animated Mouse Capsule */}
+          <div className="relative w-4 h-6 sm:w-4.5 sm:h-6.5 rounded-full border-2 border-slate-400 group-hover:border-teal-600 flex justify-center pt-1 transition-colors shrink-0">
+            <span className="w-1 h-1.5 sm:h-2 rounded-full bg-teal-600 animate-bounce" />
+          </div>
+
+          <div className="flex flex-col text-left">
+            <span className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-teal-600 transition-colors">
+              {currentScene < SCENES.length - 1 ? 'Scroll / Swipe' : 'Completed'}
+            </span>
+            <span className="text-[11px] sm:text-xs font-bold text-slate-800 flex items-center gap-1 group-hover:text-slate-950 whitespace-nowrap">
+              {currentScene < SCENES.length - 1 ? (
+                <>
+                  <span>Next: {SCENES[currentScene + 1].phase}</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-teal-600 group-hover:translate-y-0.5 transition-transform" />
+                </>
+              ) : (
+                <>
+                  <span>Back to Start</span>
+                  <ArrowUp className="w-3.5 h-3.5 text-teal-600 group-hover:-translate-y-0.5 transition-transform" />
+                </>
+              )}
+            </span>
+          </div>
+
+          <span className="ml-0.5 pl-2 sm:pl-2.5 border-l border-slate-200 text-[10px] sm:text-[11px] font-mono font-bold text-slate-400">
+            0{currentScene + 1}/0{SCENES.length}
+          </span>
+        </button>
       </div>
     </section>
   );

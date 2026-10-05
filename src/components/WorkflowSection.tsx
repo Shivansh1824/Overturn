@@ -1,102 +1,110 @@
-import React, { useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { UploadCloud, Cpu, ShieldCheck, Scale, ArrowRight } from 'lucide-react';
+import React from 'react';
+import { FileSearch, Stethoscope, Scale, SendHorizontal, CheckCircle2 } from 'lucide-react';
+import { DiagonalWatermark } from './DiagonalWatermark';
 
-gsap.registerPlugin(ScrollTrigger);
-
-const STEPS = [
+const WORKFLOW_STEPS = [
   {
-    n: '01', Icon: UploadCloud,
-    title: 'Case Intake & OCR',
-    desc: 'Upload your denial letter and hospital records (or pick a pre-loaded clinical scenario). OCR engine extracts official denial codes, ICD-10 codes, and exact insurer clause references.',
+    step: '01',
+    badge: 'Intake & OCR',
+    title: 'Deconstruct the Rejection',
+    description:
+      'Upload the rejection letter and hospital discharge summary. OverTurn isolates the exact repudiation code, policy clause, and internal insurer rationale.',
+    detail: 'Isolates arbitrary denial codes and policy exclusions in seconds.',
+    icon: FileSearch,
   },
   {
-    n: '02', Icon: Cpu,
-    title: 'Policy Guideline Cross-Audit',
-    desc: 'The multi-step agent cross-references 90-page Insurer Clinical Policy Bulletins (CPBs), IRDAI Master Circulars, and medical necessity criteria in under 2 seconds.',
+    step: '02',
+    badge: 'Clinical Cross-Audit',
+    title: 'Pinpoint Ignored Medical Proof',
+    description:
+      'Claims adjusters frequently issue generic denials without reviewing chart notes. OverTurn cross-audits records to locate the diagnostic scans and physician orders that contradict the rejection.',
+    detail: 'Extracts lab metrics, MRI findings, and surgical necessity logs.',
+    icon: Stethoscope,
   },
   {
-    n: '03', Icon: ShieldCheck,
-    title: 'Evidence Battle Board',
-    desc: 'Side-by-side contrast: what the insurer alleged vs the exact "smoking gun" proof hidden in your medical records. Human clinician sign-off required before export.',
+    step: '03',
+    badge: 'Legal Enforcement',
+    title: 'Bind Statutory Regulators',
+    description:
+      'Insurers are legally constrained by insurance law. OverTurn embeds binding IRDAI Master Circular directives, Section 45 moratoriums, and landmark court precedents directly into the dispute.',
+    detail: 'Enforces statutory compliance and penalties for bad-faith delays.',
+    icon: Scale,
   },
   {
-    n: '04', Icon: Scale,
-    title: 'Appeal Dossier & Regulator Shield',
-    desc: 'Formal legal appeal packet with ICD-10/CPT codes, Section 45 moratorium shield, and 1-click Insurance Ombudsman escalation with a 15-Day IRDAI SLA countdown.',
+    step: '04',
+    badge: 'Resolution',
+    title: 'Dispatch the Appeal Dossier',
+    description:
+      'Generates a comprehensive, audit-ready appeal package indexed to clinical page numbers. Complete with a 15-day IRDAI statutory countdown ready for immediate escalation to the Insurance Ombudsman.',
+    detail: 'Clinician-approved format with 1-click PDF export & filing.',
+    icon: SendHorizontal,
   },
 ];
 
 export const WorkflowSection: React.FC = () => {
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    if (!sectionRef.current) return;
-    const ctx = gsap.context(() => {
-      const steps = sectionRef.current!.querySelectorAll('.workflow-step');
-      gsap.from(steps, {
-        y: 32, autoAlpha: 0, duration: 0.75, stagger: 0.12, ease: 'power3.out',
-        scrollTrigger: { trigger: sectionRef.current, start: 'top 75%', once: true },
-      });
-    });
-    return () => ctx.revert();
-  }, []);
-
   return (
-    <section
-      id="how-it-works"
-      ref={sectionRef}
-      className="py-20 md:py-28 px-6 md:px-12 max-w-[1380px] mx-auto"
-    >
-      <hr className="section-divider mb-16" />
+    <div className="relative w-full h-full overflow-y-auto pt-28 pb-20 px-6 md:px-12 lg:px-16 text-slate-900 scrollbar-hide">
+      {/* ── Diagonal OVERTURN repeated background watermark ── */}
+      <DiagonalWatermark text="OVERTURN" opacity={0.02} rotation={-12} color="#0f172a" />
 
-      <div className="flex items-center gap-2 mb-3">
-        <span className="label-mono text-[#8d96b0]">[ 03 // 4-Stage Agentic Workflow ]</span>
-        <span className="label-mono" style={{ color: 'var(--brand)' }}>· From Denial to Overturn</span>
-      </div>
-
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-        <h2 className="display-lg text-[#0b0e18] max-w-xl">
-          How Overturn reclaims what is yours.
-        </h2>
-        <p className="text-sm text-[#4b5470] max-w-xs font-medium md:text-right">
-          No hold music. No attorneys. A fully autonomous legal-medical pipeline designed for maximum recovery speed.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        {STEPS.map((s) => {
-          const Icon = s.Icon;
-          return (
-            <div
-              key={s.n}
-              className="workflow-step glass-card rounded-2xl p-6 card-hover group flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-start justify-between mb-5">
-                  <span className="text-[2.2rem] font-black text-slate-100 group-hover:text-sky-200 transition-colors leading-none">
-                    {s.n}
-                  </span>
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
-                    style={{ background: 'var(--brand-light)', color: 'var(--brand)' }}
-                  >
-                    <Icon className="w-5 h-5" />
-                  </div>
-                </div>
-                <h3 className="font-bold text-[0.95rem] text-[#0b0e18] mb-2">{s.title}</h3>
-                <p className="text-xs text-[#4b5470] leading-relaxed">{s.desc}</p>
-              </div>
-
-              <div className="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between">
-                <span className="label-mono text-[#c9cedc]">Phase {s.n}</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#c9cedc] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-              </div>
+      <div className="relative z-10 max-w-7xl mx-auto h-full flex flex-col justify-center">
+        {/* Section Header with generous space */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 pb-6 border-b border-slate-200/60">
+          <div>
+            <div className="text-xs font-mono font-bold text-sky-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
+              Autonomous Appeal Workflow
             </div>
-          );
-        })}
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-slate-900">
+              From Unfair Denial to Filed Appeal
+            </h2>
+          </div>
+          <p className="text-slate-600 text-sm sm:text-base max-w-md font-medium leading-relaxed">
+            Our multi-step agent audits clinical records, isolates ignored diagnostic proof, and generates an audit-ready legal appeal dossier in minutes.
+          </p>
+        </div>
+
+        {/* 4 Steps Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-12">
+          {WORKFLOW_STEPS.map((step) => {
+            const Icon = step.icon;
+            return (
+              <div
+                key={step.step}
+                className="group relative bg-white/60 backdrop-blur-md rounded-2xl p-7 border border-slate-200/60 hover:border-slate-300/80 transition-all duration-300 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="text-3xl font-black text-slate-300 group-hover:text-slate-900 transition-colors font-mono">
+                      {step.step}
+                    </span>
+                    <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-900 group-hover:bg-slate-200 transition-colors">
+                      <Icon className="w-6 h-6" />
+                    </div>
+                  </div>
+
+                  <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-teal-600 mb-2">
+                    {step.badge}
+                  </div>
+
+                  <h3 className="text-lg font-bold mb-3 leading-snug group-hover:text-slate-700 transition-colors">
+                    {step.title}
+                  </h3>
+
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6 font-normal">
+                    {step.description}
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-slate-200/60 flex items-start gap-2 text-xs text-slate-500 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <span>{step.detail}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </section>
+    </div>
   );
 };

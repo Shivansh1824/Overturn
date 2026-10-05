@@ -48,6 +48,9 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
   }
 
   body {
@@ -57,7 +60,9 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    overflow-x: hidden;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
   }
 
   ::selection {
@@ -217,32 +222,19 @@
 .btn-ghost:active { transform: scale(0.97); }
 
 /* ─────────────────────────────────────────────
-   8. LIVE STATUS INDICATORS
+   8. STATUS INDICATORS (Clean, solid, non-pulsing)
 ───────────────────────────────────────────── */
-@keyframes pulse-ring {
-  0%   { box-shadow: 0 0 0 0 hsla(157,72%,40%,0.5); }
-  70%  { box-shadow: 0 0 0 8px hsla(157,72%,40%,0); }
-  100% { box-shadow: 0 0 0 0 hsla(157,72%,40%,0); }
-}
 .live-dot {
   width: 8px; height: 8px;
   border-radius: 50%;
   background: var(--emerald);
-  animation: pulse-ring 2.2s cubic-bezier(0.4,0,0.6,1) infinite;
   flex-shrink: 0;
 }
 
-/* Amber / warning */
-@keyframes amber-pulse {
-  0%   { box-shadow: 0 0 0 0 hsla(36,90%,48%,0.5); }
-  70%  { box-shadow: 0 0 0 8px hsla(36,90%,48%,0); }
-  100% { box-shadow: 0 0 0 0 hsla(36,90%,48%,0); }
-}
 .amber-dot {
   width: 8px; height: 8px;
   border-radius: 50%;
   background: var(--amber);
-  animation: amber-pulse 2.2s cubic-bezier(0.4,0,0.6,1) infinite;
   flex-shrink: 0;
 }
 
@@ -354,4 +346,41 @@
   .float-a, .float-b, .float-c { animation: none; }
   .marquee-track { animation: none; }
   .live-dot, .amber-dot { animation: none; }
+  .animate-glow-breathe { animation: none; }
 }
+
+@keyframes glow-breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.75;
+  }
+}
+
+.animate-glow-breathe {
+  animation: glow-breathe 9s ease-in-out infinite;
+}
+
+@keyframes marquee-drift {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-drift-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-marquee-drift {
+  animation: marquee-drift 55s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-drift-reverse {
+  animation: marquee-drift-reverse 60s linear infinite;
+  will-change: transform;
+}
+

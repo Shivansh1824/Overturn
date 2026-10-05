@@ -1,30 +1,50 @@
 import React from 'react';
-import { Shield } from 'lucide-react';
+import { BrandLogo } from './BrandLogo';
 
-export const Footer: React.FC = () => (
-  <footer className="border-t border-slate-200/70 bg-white/60 backdrop-blur-sm py-10 px-6 md:px-12">
-    <div className="max-w-[1380px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-      <div className="flex items-center gap-2.5">
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#0b0e18]">
-          <Shield className="w-4 h-4" style={{ color: '#34d399' }} />
-        </div>
-        <div>
-          <span className="font-extrabold text-sm text-[#0b0e18]">Overturn</span>
-          <span className="label-mono text-[#8d96b0] ml-2">Autonomous Claim Defense AI</span>
-        </div>
+interface FooterProps {
+  onOpenPrivacyModal?: () => void;
+  onOpenTermsModal?: () => void;
+  compact?: boolean;
+}
+
+export const Footer: React.FC<FooterProps> = ({ 
+  onOpenPrivacyModal, 
+  onOpenTermsModal,
+  compact = false 
+}) => (
+  <footer className={`w-full ${compact ? 'py-4 sm:py-5 border-t border-slate-200/60' : 'py-10 md:py-14 border-t border-slate-200/80 bg-slate-50'} text-slate-900 px-6 md:px-12`}>
+    <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8">
+      {/* Brand & Copyright */}
+      <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-5">
+        <BrandLogo size={28} textSize="text-base" />
+        <span className="hidden sm:inline text-slate-300">·</span>
+        <span className="text-xs text-slate-500 font-medium">
+          © 2026 OverTurn Inc. All rights reserved.
+        </span>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 label-mono text-[#8d96b0]">
-        <span>Track 01: Agentic AI · WCC Launchpad 30</span>
-        <span className="text-[#c9cedc]">·</span>
-        <span className="text-emerald-600 font-bold">100% Deterministic Demo Safe</span>
-        <span className="text-[#c9cedc]">·</span>
-        <span>Compliant with IRDAI Master Circular 2024</span>
-      </div>
+      {/* Legal & Governance Links */}
+      <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500 font-medium">
+        {onOpenPrivacyModal && (
+          <button
+            onClick={onOpenPrivacyModal}
+            className="hover:text-slate-900 transition-colors cursor-pointer bg-transparent border-0 text-slate-500 hover:underline"
+          >
+            Privacy Policy
+          </button>
+        )}
 
-      <div className="label-mono text-[#c9cedc] text-right">
-        React 19 · Vite · Tailwind CSS · GSAP
+        {onOpenTermsModal && (
+          <button
+            onClick={onOpenTermsModal}
+            className="hover:text-slate-900 transition-colors cursor-pointer bg-transparent border-0 text-slate-500 hover:underline"
+          >
+            Terms of Service
+          </button>
+        )}
       </div>
     </div>
   </footer>
 );
+
+

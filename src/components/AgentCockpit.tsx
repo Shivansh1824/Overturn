@@ -7,6 +7,7 @@ import {
   ArrowRight, Download, Scale, Sparkles, ShieldCheck, Lock
 } from 'lucide-react';
 import { SAMPLE_CASES } from '../data/cases';
+import { DiagonalWatermark } from './DiagonalWatermark';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -98,19 +99,27 @@ export const AgentSim: React.FC<AgentSimProps> = ({ onOpenRecoveryModal }) => {
   };
 
   return (
-    <section id="agent-sim" ref={sectionRef} className="relative py-20 md:py-28 px-6 md:px-12 max-w-[1380px] mx-auto">
+    <section id="agent-sim" ref={sectionRef} className="relative py-20 md:py-28 px-6 md:px-12 max-w-[1380px] mx-auto overflow-hidden">
+      {/* ── Diagonal OVERTURN background watermark ── */}
+      <DiagonalWatermark text="OVERTURN" opacity={0.03} rotation={-13} />
+
       {/* Section overline */}
-      <div className="flex items-center gap-3 mb-4">
-        <div className="live-dot" />
+      <div className="relative z-10 flex items-center gap-3 mb-4">
+        <span className="w-2 h-2 rounded-full bg-emerald-500" />
         <span className="label-mono text-[#8d96b0]">Live Agent Orchestration</span>
         <span className="label-mono text-[#8d96b0]">·</span>
         <span className="label-mono" style={{ color: 'var(--brand)' }}>4-Step Autonomous Pipeline</span>
       </div>
 
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-        <h2 className="display-lg text-[#0b0e18] max-w-xl">
-          Watch the agent dismantle your denial in real time.
-        </h2>
+      <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+        <div>
+          <h2 className="display-lg text-[#0b0e18] max-w-xl">
+            Simulate the Autonomous Appeal Engine
+          </h2>
+          <p className="text-slate-600 text-sm mt-2 font-medium">
+            Test the multi-step verification pipeline with pre-loaded clinical scenarios or upload your custom dispute.
+          </p>
+        </div>
         <button
           onClick={onOpenRecoveryModal}
           className="btn-primary flex-shrink-0 self-start md:self-auto"
@@ -123,7 +132,7 @@ export const AgentSim: React.FC<AgentSimProps> = ({ onOpenRecoveryModal }) => {
       {/* Main cockpit card */}
       <div
         ref={containerRef}
-        className="glass-card-deep rounded-3xl overflow-hidden border border-white/80"
+        className="relative z-10 glass-card-deep rounded-3xl overflow-hidden border border-white/80"
         style={{ boxShadow: '0 4px 6px rgba(11,14,24,0.04), 0 24px 60px rgba(11,14,24,0.09), 0 60px 120px rgba(2,132,199,0.05)' }}
       >
         {/* Top bar */}
@@ -136,7 +145,11 @@ export const AgentSim: React.FC<AgentSimProps> = ({ onOpenRecoveryModal }) => {
               <div className="w-3 h-3 rounded-full bg-emerald-400" />
             </div>
             <div className="flex items-center gap-2">
-              {running ? <RefreshCw className="w-3.5 h-3.5 text-amber-500 animate-spin" /> : <div className="live-dot" />}
+              {running ? (
+                <RefreshCw className="w-3.5 h-3.5 text-amber-500 animate-spin" />
+              ) : (
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              )}
               <span className="label-mono text-[#4b5470]">
                 {running ? 'AGENT EXECUTING PIPELINE...' : done ? 'PIPELINE COMPLETE — DOSSIER READY' : 'OVERTURN DEFENSE ENGINE · IDLE'}
               </span>

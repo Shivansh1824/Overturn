@@ -1,25 +1,141 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { AlertCircle, CheckCircle2, Scale, Sparkles, ArrowRight } from 'lucide-react';
-import { SAMPLE_CASES } from '../data/cases';
+import {
+  FileWarning,
+  SearchCheck,
+  Scale,
+  CheckCircle2,
+  ShieldCheck,
+} from 'lucide-react';
+import { DiagonalWatermark } from './DiagonalWatermark';
 
 gsap.registerPlugin(ScrollTrigger);
 
+interface ProofScenario {
+  id: string;
+  category: string;
+  allegation: {
+    title: string;
+    summary: string;
+    sampleExcuse: string;
+  };
+  smokingGun: {
+    title: string;
+    summary: string;
+    uncoveredFact: string;
+    winProbability: string;
+  };
+  statute: {
+    title: string;
+    legalAuthority: string;
+    enforcementAction: string;
+  };
+}
+
+const DISPUTE_SCENARIOS: ProofScenario[] = [
+  {
+    id: 'necessity',
+    category: 'Medical Necessity Dispute',
+    allegation: {
+      title: 'Automated "Not Medically Necessary" Denial',
+      summary:
+        'The insurer claims your surgery or inpatient hospital admission was unwarranted or could have been treated as an outpatient consultation.',
+      sampleExcuse:
+        'Repudiated under policy clause: Inpatient admission deemed elective and not clinically justified by claims medical officer.',
+    },
+    smokingGun: {
+      title: 'Objective Clinical Diagnostic Proof',
+      summary:
+        'The attending physician’s admission orders, vitals history, and diagnostic scans that prove urgent clinical necessity.',
+      uncoveredFact:
+        'Emergency physician records confirm acute symptoms requiring continuous IV monitoring and surgical intervention.',
+      winProbability: '94%',
+    },
+    statute: {
+      title: 'IRDAI Master Circular on Clinical Governance',
+      legalAuthority: 'IRDAI Master Circular 2024 / Regulation 24',
+      enforcementAction:
+        'Insurers are prohibited from overturning treating physician determinations without an independent medical board review.',
+    },
+  },
+  {
+    id: 'pre-existing',
+    category: 'Pre-Existing Condition Bar',
+    allegation: {
+      title: 'Alleged Non-Disclosure of Pre-Existing Illness',
+      summary:
+        'The insurer denies coverage claiming your condition existed prior to taking the policy, often without presenting clinical proof.',
+      sampleExcuse:
+        'Claim rejected for non-disclosure of prior medical history under standard exclusions clause.',
+    },
+    smokingGun: {
+      title: 'Verifiable First-Diagnosis Timeline',
+      summary:
+        'Hospital records and baseline test dates confirming the disease was first diagnosed well after the mandatory policy waiting window.',
+      uncoveredFact:
+        'Pathology logs and medical history cross-audit confirm zero prior consultation before policy inception date.',
+      winProbability: '96%',
+    },
+    statute: {
+      title: 'Section 45 Statutory Moratorium Bar',
+      legalAuthority: 'Insurance Act 1938, Section 45',
+      enforcementAction:
+        'Once a health insurance policy has completed continuous coverage, claims cannot be questioned or repudiated on grounds of misstatement.',
+    },
+  },
+  {
+    id: 'deductions',
+    category: 'Arbitrary Disallowance',
+    allegation: {
+      title: 'Disputed Deductions & Disallowances',
+      summary:
+        'The insurance company cuts 40%–60% of the approved hospital bill, claiming arbitrary consumable caps or room-rent penalties.',
+      sampleExcuse:
+        'Disallowance of medical equipment, nursing charges, and consumables under internal operational guidelines.',
+    },
+    smokingGun: {
+      title: 'Itemized Schedule & Tariff Disclosure',
+      summary:
+        'The signed policy schedule with no explicit proportionate deduction clause communicated at purchase time.',
+      uncoveredFact:
+        'Audit identifies all billed consumables were clinically essential and no proportionate deduction was legally contracted.',
+      winProbability: '91%',
+    },
+    statute: {
+      title: 'Consumer Protection Act & Full-Disclosure Mandate',
+      legalAuthority: 'National Consumer Commission Ruling & IRDAI Transparency Guidelines',
+      enforcementAction:
+        'Insurers cannot enforce uncommunicated internal deduction guidelines against policyholders.',
+    },
+  },
+];
+
 export const EvidenceBattleBoard: React.FC = () => {
-  const [idx, setIdx] = useState(0);
-  const cur = SAMPLE_CASES[idx];
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const [selectedScenario, setSelectedScenario] = useState<number>(0);
+  const cur = DISPUTE_SCENARIOS[selectedScenario];
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (!sectionRef.current) return;
     const ctx = gsap.context(() => {
-      const cards = sectionRef.current!.querySelectorAll('.battle-card');
-      gsap.from(cards, {
-        y: 40, autoAlpha: 0, duration: 0.8, stagger: 0.15, ease: 'power3.out',
-        scrollTrigger: { trigger: sectionRef.current, start: 'top 75%', once: true },
-      });
-    });
+      const cards = sectionRef.current?.querySelectorAll('.battle-card-box');
+      if (cards && cards.length > 0) {
+        gsap.from(cards, {
+          y: 35,
+          opacity: 0,
+          duration: 0.75,
+          stagger: 0.12,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 75%',
+            once: true,
+          },
+        });
+      }
+    }, sectionRef);
+
     return () => ctx.revert();
   }, []);
 
@@ -27,144 +143,182 @@ export const EvidenceBattleBoard: React.FC = () => {
     <section
       id="evidence-board"
       ref={sectionRef}
-      className="py-20 md:py-28 px-6 md:px-12 max-w-[1380px] mx-auto"
+      className="relative py-28 px-6 md:px-12 lg:px-16 overflow-hidden bg-[#090d16] border-t border-slate-800 text-white"
     >
-      <hr className="section-divider mb-16" />
+      {/* ── Diagonal OVERTURN repeated background watermark ── */}
+      <DiagonalWatermark text="OVERTURN" opacity={0.03} rotation={-14} />
 
-      <div className="flex items-center gap-2 mb-3">
-        <span className="label-mono text-[#8d96b0]">[ 02 // Evidence Battle Board ]</span>
-        <span className="label-mono" style={{ color: 'var(--brand)' }}>· Human-in-the-Loop Forensics</span>
-      </div>
+      <div className="relative z-10 max-w-7xl mx-auto">
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 pb-8 border-b border-slate-800">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-teal-400 font-mono text-xs font-semibold uppercase tracking-wider mb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              The Evidentiary Core
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+              What Is the Smoking Gun Proof?
+            </h2>
+          </div>
+          <p className="text-slate-400 text-sm sm:text-base max-w-md font-medium leading-relaxed">
+            Insurers rely on automated rejection templates. OverTurn unearths the concrete clinical facts already in your file to dismantle their excuse.
+          </p>
+        </div>
 
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-        <h2 className="display-lg text-[#0b0e18] max-w-xl">
-          Insurer allegation{' '}
-          <em className="not-italic" style={{ color: 'var(--rose)' }}>vs</em>{' '}
-          the smoking gun proof.
-        </h2>
+        {/* 3 Pillar Conceptual Explainer */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="p-6 rounded-2xl bg-rose-950/30 border border-rose-900/40">
+            <div className="flex items-center gap-2.5 font-bold text-rose-300 text-sm mb-2">
+              <FileWarning className="w-5 h-5 text-rose-400" />
+              1. The Insurer Allegation
+            </div>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+              The generic excuse written on the denial letter (e.g. "lack of conservative therapy" or "not clinically required"). Generated automatically by claims filters without deep doctor chart audits.
+            </p>
+          </div>
 
-        {/* Case switcher */}
-        <div className="flex gap-1.5 p-1 bg-slate-100/80 rounded-xl border border-slate-200/60 self-start md:self-auto flex-shrink-0">
-          {SAMPLE_CASES.map((c, i) => (
+          <div className="p-6 rounded-2xl bg-teal-950/30 border border-teal-800/40">
+            <div className="flex items-center gap-2.5 font-bold text-teal-300 text-sm mb-2">
+              <SearchCheck className="w-5 h-5 text-teal-400" />
+              2. The Smoking Gun Proof
+            </div>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+              The exact sentence, lab metric, or imaging report in your doctor’s file that directly proves the insurer’s claim is false. OverTurn indexes this proof by exact page number and physician signature.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800">
+            <div className="flex items-center gap-2.5 font-bold text-slate-200 text-sm mb-2">
+              <Scale className="w-5 h-5 text-emerald-400" />
+              3. The Statutory Mandate
+            </div>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+              The regulatory law (such as the Insurance Act 1938 or IRDAI Master Circular) that binds the insurer. When paired with the smoking gun, it legally obligates the insurer to reconsider or face penalties.
+            </p>
+          </div>
+        </div>
+
+        {/* Dispute Scenario Selector */}
+        <div className="flex flex-wrap items-center gap-2 mb-8">
+          <span className="font-mono text-xs uppercase tracking-wider text-slate-500 font-semibold mr-2">
+            Explore Dispute Types:
+          </span>
+          {DISPUTE_SCENARIOS.map((scenario, i) => (
             <button
-              key={c.id}
-              onClick={() => setIdx(i)}
-              className={`px-3 py-1.5 rounded-lg label-mono transition-all ${
-                idx === i ? 'bg-white shadow-sm text-[#0b0e18] border border-slate-200/70' : 'text-[#8d96b0] hover:text-[#4b5470]'
+              key={scenario.id}
+              onClick={() => setSelectedScenario(i)}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                selectedScenario === i
+                  ? 'bg-teal-600 text-white shadow-md'
+                  : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
               }`}
             >
-              {c.patient_name}
+              {scenario.category}
             </button>
           ))}
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Column A: Insurer Allegation */}
-        <div className="battle-card glass-card rounded-2xl p-6 border-rose-200/60 flex flex-col"
-          style={{ background: 'linear-gradient(135deg,rgba(255,241,242,0.6) 0%,rgba(255,255,255,0.8) 100%)' }}>
-          <div className="flex items-center justify-between mb-5 pb-4 border-b border-rose-100">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-500" />
-              <span className="label-mono text-rose-700">What Insurer Alleged</span>
-            </div>
-            <span className="label-mono text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">
-              Repudiated
-            </span>
-          </div>
+        {/* Side-by-Side 3-Column Evidentiary Comparison */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Card A: The Allegation */}
+          <div className="battle-card-box rounded-2xl p-7 bg-slate-900/90 border border-rose-900/40 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-800">
+                <span className="font-mono text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-2">
+                  <FileWarning className="w-4 h-4 text-rose-400" />
+                  Insurer’s Stated Position
+                </span>
+                <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-md bg-rose-950 text-rose-300 border border-rose-800/40">
+                  Repudiated
+                </span>
+              </div>
 
-          <div className="space-y-3 flex-1">
-            <div>
-              <div className="label-mono text-[#8d96b0] mb-0.5">Insurer</div>
-              <div className="font-bold text-sm text-[#0b0e18]">{cur.insurer_name}</div>
-            </div>
-            <div>
-              <div className="label-mono text-[#8d96b0] mb-0.5">Cited Clause</div>
-              <div className="font-mono text-xs font-bold text-rose-700 bg-rose-50 p-2.5 rounded-lg border border-rose-200/60">{cur.denial_code}</div>
-            </div>
-            <div>
-              <div className="label-mono text-[#8d96b0] mb-0.5">Their Argument</div>
-              <p className="text-xs font-medium text-[#1e2535] leading-relaxed bg-white/70 p-3 rounded-xl border border-rose-100">
-                "{cur.alleged_reason}"
+              <h4 className="text-base font-bold text-white mb-2">
+                {cur.allegation.title}
+              </h4>
+              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-5">
+                {cur.allegation.summary}
               </p>
-            </div>
-          </div>
 
-          <div className="mt-4 pt-3 border-t border-rose-100 label-mono text-rose-600">
-            Status: Automated opaque rejection
-          </div>
-        </div>
-
-        {/* Column B: Smoking Gun — Highlighted */}
-        <div className="battle-card glass-card-deep rounded-2xl p-6 flex flex-col ring-2 ring-emerald-500/10"
-          style={{ background: 'linear-gradient(135deg,#f0fdf4 0%,rgba(255,255,255,0.95) 100%)', borderColor: 'rgba(16,185,129,0.3)' }}>
-          <div className="flex items-center justify-between mb-5 pb-4 border-b border-emerald-100">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-emerald-600" />
-              <span className="label-mono text-emerald-800">The Smoking Gun</span>
-            </div>
-            <span className="label-mono text-emerald-800 bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-full">
-              {cur.win_probability}% Overturn
-            </span>
-          </div>
-
-          <div className="space-y-3 flex-1">
-            <div>
-              <div className="label-mono text-[#8d96b0] mb-0.5">Forensic Source</div>
-              <div className="font-mono text-xs font-bold text-emerald-900 bg-emerald-50 p-2.5 rounded-lg border border-emerald-200">{cur.smoking_gun.source}</div>
-            </div>
-            <div>
-              <div className="label-mono text-[#8d96b0] mb-0.5">Discovered Contradiction</div>
-              <p className="text-sm font-semibold text-[#0b0e18] leading-relaxed bg-white p-3.5 rounded-xl border border-emerald-100 shadow-sm">
-                "{cur.smoking_gun.summary}"
-              </p>
-            </div>
-            <div>
-              <div className="label-mono text-[#8d96b0] mb-0.5">Evidence Coding</div>
-              <div className="font-mono text-[11px] text-[#4b5470] bg-slate-50 p-2.5 rounded-lg border border-slate-200">{cur.smoking_gun.clinical_citation}</div>
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-emerald-100 flex items-center gap-2 label-mono text-emerald-800">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            Repudiation directly contradicted by records
-          </div>
-        </div>
-
-        {/* Column C: Statutory Shield */}
-        <div className="battle-card rounded-2xl p-6 flex flex-col bg-[#0b0e18]">
-          <div className="flex items-center justify-between mb-5 pb-4 border-b border-slate-800">
-            <div className="flex items-center gap-2">
-              <Scale className="w-4 h-4 text-emerald-400" />
-              <span className="label-mono text-slate-300">Statutory Shield</span>
-            </div>
-            <span className="label-mono text-emerald-400 bg-emerald-950 border border-emerald-800 px-2 py-0.5 rounded-full">
-              Binding Law
-            </span>
-          </div>
-
-          <div className="space-y-3 flex-1">
-            <div>
-              <div className="label-mono text-slate-600 mb-0.5">Legal Mandate</div>
-              <div className="font-mono text-[11px] font-bold text-emerald-300 bg-slate-900/80 p-2.5 rounded-lg border border-slate-700">{cur.key_statute}</div>
-            </div>
-            <div>
-              <div className="label-mono text-slate-600 mb-0.5">Why Insurer Must Comply</div>
-              <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/70 p-3 rounded-xl border border-slate-800">
-                {cur.policy_shield.protection_clause}
-              </p>
-            </div>
-            <div>
-              <div className="label-mono text-slate-600 mb-0.5">IRDAI Escalation SLA</div>
-              <div className="font-mono text-[11px] text-slate-400 bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
-                Section 14: Insurer must resolve within 15 days or face penal interest.
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-rose-300 leading-relaxed">
+                <span className="font-bold block mb-1 uppercase tracking-wider text-[10px] text-rose-400">
+                  Denial Letter Text:
+                </span>
+                "{cur.allegation.sampleExcuse}"
               </div>
             </div>
+
+            <div className="mt-6 pt-4 border-t border-slate-800 text-xs font-medium text-rose-400 flex items-center gap-1.5">
+              <span>Automated repudiation without clinical depth</span>
+            </div>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between label-mono">
-            <span className="text-slate-500">Audit-proof legal package</span>
-            <span className="text-emerald-400 font-bold">Ready to file →</span>
+          {/* Card B: The Smoking Gun Proof */}
+          <div className="battle-card-box rounded-2xl p-7 bg-slate-900/90 border border-teal-500/50 shadow-md flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-800">
+                <span className="font-mono text-xs font-bold uppercase tracking-wider text-teal-400 flex items-center gap-2">
+                  <SearchCheck className="w-4 h-4 text-teal-400" />
+                  The Discovered Smoking Gun
+                </span>
+                <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-md bg-teal-950 text-teal-300 border border-teal-800/50">
+                  {cur.smokingGun.winProbability} Win Probability
+                </span>
+              </div>
+
+              <h4 className="text-base font-bold text-white mb-2">
+                {cur.smokingGun.title}
+              </h4>
+              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-5">
+                {cur.smokingGun.summary}
+              </p>
+
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-medium text-emerald-300 shadow-2xs leading-relaxed">
+                <span className="font-bold block mb-1 uppercase tracking-wider text-[10px] text-teal-400">
+                  Clinical Evidence Found:
+                </span>
+                "{cur.smokingGun.uncoveredFact}"
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-slate-800 text-xs font-semibold text-emerald-400 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Direct contradiction established from original chart</span>
+            </div>
+          </div>
+
+          {/* Card C: Statutory Shield */}
+          <div className="battle-card-box rounded-2xl p-7 bg-slate-900/90 border border-slate-800 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-800">
+                <span className="font-mono text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                  <Scale className="w-4 h-4" />
+                  Legal & Regulatory Shield
+                </span>
+                <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-md bg-slate-800 text-slate-300">
+                  Enforceable
+                </span>
+              </div>
+
+              <h4 className="text-base font-bold text-white mb-2">
+                {cur.statute.title}
+              </h4>
+              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-5">
+                {cur.statute.enforcementAction}
+              </p>
+
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-emerald-300 leading-relaxed">
+                <span className="font-bold block mb-1 uppercase tracking-wider text-[10px] text-slate-500">
+                  Binding Legal Authority:
+                </span>
+                {cur.statute.legalAuthority}
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-slate-800 text-xs font-mono text-slate-400 flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Compels insurer reconsideration under legal penalty</span>
+            </div>
           </div>
         </div>
       </div>

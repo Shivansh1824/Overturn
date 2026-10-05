@@ -1,58 +1,173 @@
 import React, { useState } from 'react';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowRight, Menu, X } from 'lucide-react';
+import { BrandLogo } from './BrandLogo';
 
 interface NavbarProps {
-  onOpenRecoveryModal: () => void;
+  onOpenSignIn: () => void;
+  onOpenRecoveryModal?: () => void;
+  onOpenPrivacyModal?: () => void;
+  onOpenTermsModal?: () => void;
+  onNavigateToScene?: (sceneIndex: number) => void;
+  currentScene?: number;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenRecoveryModal }) => {
-  const [menuOpen, setMenuOpen] = useState(false);
+export const Navbar: React.FC<NavbarProps> = ({
+  onOpenSignIn,
+  onOpenPrivacyModal,
+  onOpenTermsModal,
+  onNavigateToScene,
+  currentScene = 0,
+}) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleNavClick = (sceneIndex: number) => {
+    setMobileMenuOpen(false);
+    if (onNavigateToScene) {
+      onNavigateToScene(sceneIndex);
+    }
+  };
+
+  const isStoryActive = currentScene >= 0 && currentScene <= 2;
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 md:px-10 h-16">
-      {/* frosted glass bar */}
-      <div className="absolute inset-0 bg-white/75 backdrop-blur-xl border-b border-white/60 shadow-[0_1px_0_rgba(200,210,228,0.5)]" />
-
-      {/* Logo */}
-      <div className="relative flex items-center gap-2.5 z-10">
-        {/* Shield icon mark — inline SVG for crispness */}
-        <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-[#0b0e18] shadow-md">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#34d399" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="m9 12 2 2 4-4" stroke="#34d399" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-        <div>
-          <span className="font-extrabold text-[1.05rem] tracking-tight text-[#0b0e18] leading-none block">
-            Overturn
-          </span>
-          <span className="label-mono text-[9px] text-[#4b5470] leading-none">
-            Claim Defense AI
-          </span>
-        </div>
-      </div>
-
-      {/* Desktop Nav */}
-      <nav className="relative z-10 hidden md:flex items-center gap-7 text-sm font-semibold text-[#4b5470]">
-        <a href="#how-it-works" className="hover:text-[#0b0e18] transition-colors">How it Works</a>
-        <a href="#evidence-board" className="hover:text-[#0b0e18] transition-colors">Evidence Board</a>
-        <a href="#statutory-shield" className="hover:text-[#0b0e18] transition-colors">Statutory Shield</a>
-        <div className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold label-mono">
-          <span className="live-dot !w-5px !h-5px" style={{width:'6px',height:'6px'}}></span>
-          95% Win Rate
-        </div>
-      </nav>
-
-      {/* CTA */}
-      <div className="relative z-10 flex items-center gap-3">
+    <header className="fixed top-0 inset-x-0 z-50 bg-transparent transition-all duration-300">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 h-20 sm:h-22 flex items-center justify-between">
+        {/* Brand Logo */}
         <button
-          onClick={onOpenRecoveryModal}
-          className="btn-primary text-sm px-5 py-2.5 !rounded-xl"
+          onClick={() => handleNavClick(0)}
+          className="flex items-center group cursor-pointer no-underline bg-transparent border-0 p-0 text-left"
         >
-          Recover My Claim
-          <ArrowUpRight className="w-4 h-4" />
+          <BrandLogo size={38} textSize="text-xl" />
         </button>
+
+        {/* Desktop Nav Links - Crisp slate-800 font for optimal legibility over transparent background */}
+        <nav className="hidden lg:flex items-center gap-9 text-[0.875rem] font-bold">
+          <button
+            onClick={() => handleNavClick(0)}
+            className={`transition-colors cursor-pointer bg-transparent border-0 py-1 tracking-tight ${
+              isStoryActive
+                ? 'text-teal-700 font-extrabold'
+                : 'text-slate-800 hover:text-teal-700'
+            }`}
+          >
+            The Story
+          </button>
+          <button
+            onClick={() => handleNavClick(3)}
+            className={`transition-colors cursor-pointer bg-transparent border-0 py-1 tracking-tight ${
+              currentScene === 3
+                ? 'text-teal-700 font-extrabold'
+                : 'text-slate-800 hover:text-teal-700'
+            }`}
+          >
+            How It Works
+          </button>
+          <button
+            onClick={() => handleNavClick(4)}
+            className={`transition-colors cursor-pointer bg-transparent border-0 py-1 tracking-tight ${
+              currentScene === 4
+                ? 'text-teal-700 font-extrabold'
+                : 'text-slate-800 hover:text-teal-700'
+            }`}
+          >
+            Outcomes
+          </button>
+          <button
+            onClick={() => handleNavClick(5)}
+            className={`transition-colors cursor-pointer bg-transparent border-0 py-1 tracking-tight ${
+              currentScene === 5
+                ? 'text-teal-700 font-extrabold'
+                : 'text-slate-800 hover:text-teal-700'
+            }`}
+          >
+            FAQ
+          </button>
+        </nav>
+
+        {/* Right CTA: Sign In Button */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onOpenSignIn}
+            className="px-6 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition-all duration-200 shadow-md shadow-slate-900/10 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center gap-2"
+          >
+            <span>Sign In</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden p-2 rounded-xl text-slate-800 hover:text-slate-950 hover:bg-white/60 transition-colors cursor-pointer"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Drawer */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden bg-white/95 backdrop-blur-xl border-b border-slate-200 px-6 py-6 shadow-2xl space-y-4 relative z-20">
+          <button
+            onClick={() => handleNavClick(0)}
+            className="block w-full text-left font-bold text-slate-900 text-sm py-2 cursor-pointer"
+          >
+            The Story
+          </button>
+          <button
+            onClick={() => handleNavClick(3)}
+            className="block w-full text-left font-bold text-slate-900 text-sm py-2 cursor-pointer"
+          >
+            How It Works
+          </button>
+          <button
+            onClick={() => handleNavClick(4)}
+            className="block w-full text-left font-bold text-slate-900 text-sm py-2 cursor-pointer"
+          >
+            Patient Outcomes
+          </button>
+          <button
+            onClick={() => handleNavClick(5)}
+            className="block w-full text-left font-bold text-slate-900 text-sm py-2 cursor-pointer"
+          >
+            FAQ
+          </button>
+
+          <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenSignIn();
+              }}
+              className="w-full py-2.5 rounded-full bg-slate-900 text-white font-bold text-sm text-center cursor-pointer"
+            >
+              Sign In
+            </button>
+
+            {onOpenPrivacyModal && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenPrivacyModal();
+                }}
+                className="block w-full text-left font-semibold text-slate-500 text-xs py-1"
+              >
+                Privacy & DPDP Policy
+              </button>
+            )}
+            {onOpenTermsModal && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenTermsModal();
+                }}
+                className="block w-full text-left font-semibold text-slate-500 text-xs py-1"
+              >
+                Terms & Conditions
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 };

@@ -66,7 +66,7 @@ export const ClaimRecoveryModal: React.FC<ClaimRecoveryModalProps> = ({ isOpen, 
         {step === 'input' && (
           <div>
             <h3 className="text-xl sm:text-2xl font-black text-ink-primary tracking-tight">
-              Calculate Your Claim Overturn Odds
+              Calculate Your Claim OverTurn Odds
             </h3>
             <p className="text-xs sm:text-sm text-ink-secondary mt-1 mb-6">
               Enter your denial details to see which statutory clauses and clinical precedents overturn your rejection.

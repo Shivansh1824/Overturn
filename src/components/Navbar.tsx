@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { ArrowRight, Menu, X } from 'lucide-react';
+import { ArrowRight, Menu, X, LayoutDashboard, Gavel } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
+import { AuthUser } from '../lib/supabase';
 
 interface NavbarProps {
   onOpenSignIn: () => void;
+  onOpenDashboard?: () => void;
+  user?: AuthUser | null;
   onOpenRecoveryModal?: () => void;
   onOpenPrivacyModal?: () => void;
   onOpenTermsModal?: () => void;
@@ -13,6 +16,8 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({
   onOpenSignIn,
+  onOpenDashboard,
+  user,
   onOpenPrivacyModal,
   onOpenTermsModal,
   onNavigateToScene,
@@ -40,7 +45,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <BrandLogo size={38} textSize="text-xl" />
         </button>
 
-        {/* Desktop Nav Links - Crisp slate-800 font for optimal legibility over transparent background */}
+        {/* Desktop Nav Links */}
         <nav className="hidden lg:flex items-center gap-9 text-[0.875rem] font-bold">
           <button
             onClick={() => handleNavClick(0)}
@@ -84,15 +89,26 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </nav>
 
-        {/* Right CTA: Sign In Button */}
+        {/* Right CTA: Sign In / Dashboard Button */}
         <div className="flex items-center gap-3">
-          <button
-            onClick={onOpenSignIn}
-            className="px-6 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition-all duration-200 shadow-md shadow-slate-900/10 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center gap-2"
-          >
-            <span>Sign In</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          {user ? (
+            <button
+              onClick={onOpenDashboard}
+              className="px-5 py-2.5 rounded-full bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs sm:text-sm transition-all duration-200 shadow-md shadow-teal-500/20 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center gap-2"
+            >
+              {user.role === 'judge' ? <Gavel className="w-4 h-4 text-teal-200" /> : <LayoutDashboard className="w-4 h-4" />}
+              <span>Dashboard</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
+            </button>
+          ) : (
+            <button
+              onClick={onOpenSignIn}
+              className="px-6 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition-all duration-200 shadow-md shadow-slate-900/10 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center gap-2"
+            >
+              <span>Sign In</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          )}
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -133,15 +149,28 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenSignIn();
-              }}
-              className="w-full py-2.5 rounded-full bg-slate-900 text-white font-bold text-sm text-center cursor-pointer"
-            >
-              Sign In
-            </button>
+            {user ? (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenDashboard?.();
+                }}
+                className="w-full py-2.5 rounded-full bg-teal-600 text-white font-bold text-sm text-center cursor-pointer flex items-center justify-center gap-2"
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                <span>Open Dashboard ({user.name})</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenSignIn();
+                }}
+                className="w-full py-2.5 rounded-full bg-slate-900 text-white font-bold text-sm text-center cursor-pointer"
+              >
+                Sign In
+              </button>
+            )}
 
             {onOpenPrivacyModal && (
               <button
